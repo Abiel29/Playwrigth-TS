@@ -1,0 +1,31 @@
+{
+  "name": "playwright-portfolio",
+  "version": "1.0.0",
+  "description": "Comprehensive Playwright E2E Testing Portfolio - Multiple Projects",
+  "scripts": {
+    "test": "npm run test:all",
+    "test:all": "npm run test:e-commerce && npm run test:booking && npm run test:banking && npm run test:admin",
+    "test:e-commerce": "npx playwright test --config=projects/e-commerce/playwright.config.ts",
+    "test:booking": "npx playwright test --config=projects/booking/playwright.config.ts",
+    "test:banking": "npx playwright test --config=projects/banking/playwright.config.ts",
+    "test:admin": "npx playwright test --config=projects/admin-dashboard/playwright.config.ts",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "test:debug": "npx playwright test --debug",
+    "report:e-commerce": "npx playwright show-report playwright-report/e-commerce",
+    "report:booking": "npx playwright show-report playwright-report/booking",
+    "report:banking": "npx playwright show-report playwright-report/banking",
+    "report:admin": "npx playwright show-report playwright-report/admin-dashboard",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.0",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0"
+  },
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,90 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+env:
+  CI: true
+
+jobs:
+  e-commerce-tests:
+    name: E-Commerce Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:e-commerce
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e-commerce-report
+          path: playwright-report/e-commerce/
+          retention-days: 30
+
+  booking-tests:
+    name: Booking Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:booking
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: booking-report
+          path: playwright-report/booking/
+          retention-days: 30
+
+  banking-tests:
+    name: Banking Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:banking
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: banking-report
+          path: playwright-report/banking/
+          retention-days: 30
+
+  admin-tests:
+    name: Admin Dashboard Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:admin
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: admin-report
+          path: playwright-report/admin-dashboard/
+          retention-days: 30

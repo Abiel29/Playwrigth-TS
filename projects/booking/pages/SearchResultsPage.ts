@@ -1,71 +1,75 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class SearchResultsPage extends BasePage {
-  readonly pageUrl = /search/;
-  readonly hotelCards: Locator;
-  readonly priceFilter: Locator;
-  readonly starRatingFilter: Locator;
-  readonly sortDropdown: Locator;
-  readonly noResultsMessage: Locator;
-  readonly loadingSpinner: Locator;
-  readonly resultsCount: Locator;
+  readonly pageUrl = /reserve/;
+  readonly pageTitle: Locator;
+  readonly flightTable: Locator;
+  readonly flightRows: Locator;
+  readonly chooseFlightButtons: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.hotelCards = page.locator('.hotel-card, .property-card, .search-result-item');
-    this.priceFilter = page.locator('[data-filter="price"]');
-    this.starRatingFilter = page.locator('[data-filter="stars"]');
-    this.sortDropdown = page.locator('select[name="sort"], .sort-dropdown');
-    this.noResultsMessage = page.locator('.no-results, .empty-state');
-    this.loadingSpinner = page.locator('.loading, .spinner');
-    this.resultsCount = page.locator('.results-count, .total-results');
+    this.pageTitle = page.locator('h3');
+    this.flightTable = page.locator('table.table');
+    this.flightRows = page.locator('table.table tbody tr');
+    this.chooseFlightButtons = page.locator('input[type="submit"][value="Choose This Flight"]');
   }
 
   async waitForResults() {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.flightTable.waitFor({ state: 'visible' });
   }
 
   async getResultsCount(): Promise<number> {
-    return this.hotelCards.count();
-  }
-
-  async selectHotelByIndex(index: number) {
-    await this.hotelCards.nth(index).click();
-  }
-
-  async selectFirstHotel() {
-    await this.selectHotelByIndex(0);
-  }
-
-  async sortByPrice(order: 'low' | 'high') {
-    await this.sortDropdown.selectOption(order === 'low' ? 'price_asc' : 'price_desc');
-    await this.waitForResults();
-  }
-
-  async filterByStarRating(stars: number) {
-    await this.page.locator(`[data-stars="${stars}"]`).click();
-    await this.waitForResults();
-  }
-
-  async filterByPriceRange(min: number, max: number) {
-    await this.page.locator('input[name="price_min"]').fill(min.toString());
-    await this.page.locator('input[name="price_max"]').fill(max.toString());
-    await this.page.locator('button.apply-filter').click();
-    await this.waitForResults();
-  }
-
-  async getHotelNames(): Promise<string[]> {
-    return this.page.locator('.hotel-name, .property-name').allTextContents();
-  }
-
-  async getHotelPrices(): Promise<number[]> {
-    const priceTexts = await this.page.locator('.hotel-price, .price').allTextContents();
-    return priceTexts.map(p => parseFloat(p.replace(/[^0-9.]/g, '')));
+    return this.flightRows.count();
   }
 
   async hasResults(): Promise<boolean> {
     const count = await this.getResultsCount();
     return count > 0;
+  }
+
+  async selectFlightByIndex(index: number) {
+    await this.chooseFlightButtons.nth(index).click();
+  }
+
+  async selectFirstFlight() {
+    await this.selectFlightByIndex(0);
+  }
+
+  async getFlightDetails(index: number): Promise<{
+    airline: string;
+    flightNumber: string;
+    departTime: string;
+    arriveTime: string;
+    price: number;
+  }> {
+    const row = this.flightRows.nth(index);
+    const cells = row.locator('td');
+    
+    return {
+      airline: await cells.nth(2).textContent() || '',
+      flightNumber: await cells.nth(1).textContent() || '',
+      departTime: await cells.nth(3).textContent() || '',
+      arriveTime: await cells.nth(4).textContent() || '',
+      price: parseFloat((await cells.nth(5).textContent())?.replace(/[^0-9.]/g, '') || '0'),
+    };
+  }
+
+  async getFlightPrices(): Promise<number[]> {
+    const prices: number[] = [];
+    const count = await this.getResultsCount();
+    
+    for (let i = 0; i < count; i++) {
+      const details = await this.getFlightDetails(i);
+      prices.push(details.price);
+    }
+    
+    return prices;
+  }
+
+  async getPageTitle(): Promise<string | null> {
+    return this.pageTitle.textContent();
   }
 }

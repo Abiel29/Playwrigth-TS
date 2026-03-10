@@ -125,8 +125,10 @@ test.describe('End-to-End User Flows', () => {
     await inventoryPage.logout();
     await expect(page).toHaveURL(/.*saucedemo.com\/?$/);
 
-    // Login again - cart should be empty (no session persistence)
+    // Login again - SauceDemo persists cart in localStorage per user
+    // so cart should still have items after re-login
     await loginPage.login(Users.standard.username, Users.standard.password);
-    await expect(inventoryPage.cartBadge).not.toBeVisible();
+    await expect(inventoryPage.cartBadge).toBeVisible();
+    expect(await inventoryPage.getCartCount()).toBe(1);
   });
 });

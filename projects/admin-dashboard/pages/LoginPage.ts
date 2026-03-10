@@ -29,11 +29,14 @@ export class LoginPage extends BasePage {
     await this.usernameInput.fill(username);
     await this.passwordInput.fill(password);
     await this.loginButton.click();
+    // Wait for navigation to start (handles slow server response)
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async loginAndVerify(username: string, password: string) {
     await this.login(username, password);
-    await expect(this.page).toHaveURL(/dashboard/);
+    await expect(this.page).toHaveURL(/dashboard/, { timeout: 60000 });
+    await this.page.waitForLoadState('networkidle');
   }
 
   async getErrorMessage(): Promise<string | null> {

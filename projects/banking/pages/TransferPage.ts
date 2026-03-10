@@ -67,8 +67,9 @@ export class TransferPage extends BasePage {
   }
 
   async getErrorMessage(): Promise<string | null> {
-    if (await this.errorMessage.isVisible()) {
-      return this.errorMessage.textContent();
+    const firstError = this.errorMessage.first();
+    if (await firstError.isVisible()) {
+      return firstError.textContent();
     }
     return null;
   }

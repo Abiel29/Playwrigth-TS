@@ -1,160 +1,147 @@
 import { test, expect } from '../fixtures/test-fixtures';
-import { SearchData, TestUsers } from '../utils/TestData';
+import { FlightData, TestUsers } from '../utils/TestData';
 
-test.describe('Hotel Booking Flow', () => {
+test.describe('Flight Booking Flow', () => {
   test('complete booking flow - search to confirmation', async ({
     homePage,
     searchResultsPage,
-    hotelDetailPage,
     bookingPage,
     confirmationPage,
   }) => {
-    // Step 1: Search for hotel
+    // Step 1: Search for flight
     await homePage.goto();
-    await homePage.searchHotel(
-      SearchData.destinations.dubai,
-      SearchData.dates.getCheckIn(),
-      SearchData.dates.getCheckOut(),
-      2
+    await homePage.searchFlight(
+      FlightData.departures.paris,
+      FlightData.destinations.london
     );
 
-    // Step 2: Select hotel from results
+    // Step 2: Select flight from results
     await searchResultsPage.waitForResults();
     expect(await searchResultsPage.hasResults()).toBe(true);
-    await searchResultsPage.selectFirstHotel();
+    await searchResultsPage.selectFirstFlight();
 
-    // Step 3: View hotel details and book
-    await expect(hotelDetailPage.hotelName).toBeVisible();
-    await hotelDetailPage.clickBookNow();
+    // Step 3: Fill booking details and purchase
+    await bookingPage.completePurchase(TestUsers.passenger, TestUsers.payment);
 
-    // Step 4: Fill booking details
-    await bookingPage.fillGuestDetails(TestUsers.guest);
-    await bookingPage.acceptTerms();
-    await bookingPage.confirmBooking();
-
-    // Step 5: Verify confirmation
+    // Step 4: Verify confirmation
     expect(await confirmationPage.isBookingConfirmed()).toBe(true);
   });
 
-  test('should display hotel details correctly', async ({
+  test('should display booking page with flight info', async ({
     homePage,
     searchResultsPage,
-    hotelDetailPage,
-  }) => {
-    await homePage.goto();
-    await homePage.searchHotel(
-      SearchData.destinations.singapore,
-      SearchData.dates.getCheckIn(),
-      SearchData.dates.getCheckOut(),
-      2
-    );
-
-    await searchResultsPage.waitForResults();
-    await searchResultsPage.selectFirstHotel();
-
-    await expect(hotelDetailPage.hotelName).toBeVisible();
-    await expect(hotelDetailPage.hotelPrice).toBeVisible();
-    
-    const roomCount = await hotelDetailPage.getRoomTypesCount();
-    expect(roomCount).toBeGreaterThan(0);
-  });
-
-  test('should show booking form validation errors', async ({
-    homePage,
-    searchResultsPage,
-    hotelDetailPage,
     bookingPage,
   }) => {
     await homePage.goto();
-    await homePage.searchHotel(
-      SearchData.destinations.dubai,
-      SearchData.dates.getCheckIn(),
-      SearchData.dates.getCheckOut(),
-      2
+    await homePage.searchFlight(
+      FlightData.departures.boston,
+      FlightData.destinations.rome
     );
 
     await searchResultsPage.waitForResults();
-    await searchResultsPage.selectFirstHotel();
-    await hotelDetailPage.clickBookNow();
+    await searchResultsPage.selectFirstFlight();
 
-    // Try to submit without filling form
-    await bookingPage.confirmBooking();
-    
-    const error = await bookingPage.getErrorMessage();
-    expect(error).not.toBeNull();
+    await expect(bookingPage.pageTitle).toBeVisible();
+    await expect(bookingPage.nameInput).toBeVisible();
+    await expect(bookingPage.purchaseButton).toBeVisible();
   });
 
-  test('should calculate correct total price', async ({
+  test('should show total price on booking page', async ({
     homePage,
     searchResultsPage,
-    hotelDetailPage,
     bookingPage,
   }) => {
     await homePage.goto();
-    await homePage.searchHotel(
-      SearchData.destinations.dubai,
-      SearchData.dates.getCheckIn(),
-      SearchData.dates.getCheckOut(),
-      2
+    await homePage.searchFlight(
+      FlightData.departures.portland,
+      FlightData.destinations.berlin
     );
 
     await searchResultsPage.waitForResults();
-    await searchResultsPage.selectFirstHotel();
-    
-    const hotelPrice = await hotelDetailPage.getPrice();
-    await hotelDetailPage.clickBookNow();
-    
+    await searchResultsPage.selectFirstFlight();
+
     const totalPrice = await bookingPage.getTotalPrice();
     expect(totalPrice).toBeGreaterThan(0);
   });
+
+  test('should fill passenger details correctly', async ({
+    homePage,
+    searchResultsPage,
+    bookingPage,
+  }) => {
+    await homePage.goto();
+    await homePage.searchFlight(
+      FlightData.departures.sanDiego,
+      FlightData.destinations.dublin
+    );
+
+    await searchResultsPage.waitForResults();
+    await searchResultsPage.selectFirstFlight();
+
+    await bookingPage.fillPassengerDetails(TestUsers.passenger);
+
+    await expect(bookingPage.nameInput).toHaveValue(TestUsers.passenger.name);
+    await expect(bookingPage.addressInput).toHaveValue(TestUsers.passenger.address);
+    await expect(bookingPage.cityInput).toHaveValue(TestUsers.passenger.city);
+  });
+
+  test('should fill payment details correctly', async ({
+    homePage,
+    searchResultsPage,
+    bookingPage,
+  }) => {
+    await homePage.goto();
+    await homePage.searchFlight(
+      FlightData.departures.mexicoCity,
+      FlightData.destinations.cairo
+    );
+
+    await searchResultsPage.waitForResults();
+    await searchResultsPage.selectFirstFlight();
+
+    await bookingPage.fillPaymentDetails(TestUsers.payment);
+
+    await expect(bookingPage.creditCardInput).toHaveValue(TestUsers.payment.cardNumber);
+    await expect(bookingPage.nameOnCardInput).toHaveValue(TestUsers.payment.nameOnCard);
+  });
 });
 
-test.describe('Booking Form Validation', () => {
-  test.beforeEach(async ({ homePage, searchResultsPage, hotelDetailPage }) => {
+test.describe('Confirmation Page Tests', () => {
+  test.beforeEach(async ({ homePage, searchResultsPage, bookingPage }) => {
     await homePage.goto();
-    await homePage.searchHotel(
-      SearchData.destinations.dubai,
-      SearchData.dates.getCheckIn(),
-      SearchData.dates.getCheckOut(),
-      2
+    await homePage.searchFlight(
+      FlightData.departures.paris,
+      FlightData.destinations.newYork
     );
     await searchResultsPage.waitForResults();
-    await searchResultsPage.selectFirstHotel();
-    await hotelDetailPage.clickBookNow();
+    await searchResultsPage.selectFirstFlight();
+    await bookingPage.completePurchase(TestUsers.passenger, TestUsers.payment);
   });
 
-  test('should require first name', async ({ bookingPage }) => {
-    await bookingPage.fillGuestDetails({
-      firstName: '',
-      lastName: TestUsers.guest.lastName,
-      email: TestUsers.guest.email,
-      phone: TestUsers.guest.phone,
-    });
-    await bookingPage.confirmBooking();
-    
-    const error = await bookingPage.getErrorMessage();
-    expect(error).not.toBeNull();
+  test('should display confirmation page', async ({ confirmationPage }) => {
+    expect(await confirmationPage.isBookingConfirmed()).toBe(true);
   });
 
-  test('should require valid email', async ({ bookingPage }) => {
-    await bookingPage.fillGuestDetails({
-      firstName: TestUsers.guest.firstName,
-      lastName: TestUsers.guest.lastName,
-      email: 'invalid-email',
-      phone: TestUsers.guest.phone,
-    });
-    await bookingPage.confirmBooking();
-    
-    const error = await bookingPage.getErrorMessage();
-    expect(error).not.toBeNull();
+  test('should show confirmation ID', async ({ confirmationPage }) => {
+    const id = await confirmationPage.getConfirmationId();
+    expect(id).toBeTruthy();
   });
 
-  test('should require terms acceptance', async ({ bookingPage }) => {
-    await bookingPage.fillGuestDetails(TestUsers.guest);
-    // Don't accept terms
-    await bookingPage.confirmBooking();
+  test('should show booking status', async ({ confirmationPage }) => {
+    const status = await confirmationPage.getStatus();
+    expect(status).toBeTruthy();
+  });
+
+  test('should show amount paid', async ({ confirmationPage }) => {
+    const amount = await confirmationPage.getAmountPaid();
+    expect(amount).toBeGreaterThan(0);
+  });
+
+  test('should verify all confirmation details', async ({ confirmationPage }) => {
+    const details = await confirmationPage.verifyConfirmationDetails();
     
-    const error = await bookingPage.getErrorMessage();
-    expect(error).not.toBeNull();
+    expect(details.id).toBeTruthy();
+    expect(details.status).toBeTruthy();
+    expect(details.amount).toBeGreaterThan(0);
   });
 });

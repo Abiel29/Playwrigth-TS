@@ -10,6 +10,10 @@ export abstract class BasePage {
 
   async waitForPageLoad() {
     await this.page.waitForLoadState('domcontentloaded');
+    // Extra wait for slow OrangeHRM server
+    await this.page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {
+      // Ignore networkidle timeout - page may still be usable
+    });
   }
 
   async getTitle(): Promise<string> {
@@ -24,7 +28,7 @@ export abstract class BasePage {
     return locator.isVisible();
   }
 
-  async waitForElement(locator: Locator, timeout = 10000) {
+  async waitForElement(locator: Locator, timeout = 30000) {
     await locator.waitFor({ state: 'visible', timeout });
   }
 }

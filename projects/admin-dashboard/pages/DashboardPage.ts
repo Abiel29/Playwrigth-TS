@@ -44,37 +44,44 @@ export class DashboardPage extends BasePage {
 
   async navigateToAdmin() {
     await this.adminMenuItem.click();
-    await expect(this.page).toHaveURL(/admin/);
+    await expect(this.page).toHaveURL(/admin/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async navigateToPIM() {
     await this.pimMenuItem.click();
-    await expect(this.page).toHaveURL(/pim/);
+    await expect(this.page).toHaveURL(/pim/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async navigateToLeave() {
     await this.leaveMenuItem.click();
-    await expect(this.page).toHaveURL(/leave/);
+    await expect(this.page).toHaveURL(/leave/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async navigateToTime() {
     await this.timeMenuItem.click();
-    await expect(this.page).toHaveURL(/time/);
+    await expect(this.page).toHaveURL(/time/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async navigateToRecruitment() {
     await this.recruitmentMenuItem.click();
-    await expect(this.page).toHaveURL(/recruitment/);
+    await expect(this.page).toHaveURL(/recruitment/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async navigateToMyInfo() {
     await this.myInfoMenuItem.click();
-    await expect(this.page).toHaveURL(/pim\/viewPersonalDetails/);
+    await expect(this.page).toHaveURL(/pim\/viewPersonalDetails/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async navigateToDirectory() {
     await this.directoryMenuItem.click();
-    await expect(this.page).toHaveURL(/directory/);
+    await expect(this.page).toHaveURL(/directory/, { timeout: 60000 });
+    await this.waitForPageLoad();
   }
 
   async searchMenu(query: string) {
@@ -83,7 +90,9 @@ export class DashboardPage extends BasePage {
 
   async logout() {
     await this.userDropdown.click();
+    await this.logoutLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.logoutLink.click();
+    await expect(this.page).toHaveURL(/login/, { timeout: 60000 });
   }
 
   async getQuickLaunchCount(): Promise<number> {

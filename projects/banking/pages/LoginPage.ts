@@ -37,10 +37,13 @@ export class LoginPage extends BasePage {
   }
 
   async getErrorMessage(): Promise<string | null> {
-    if (await this.errorMessage.isVisible()) {
-      return this.errorMessage.textContent();
+    const firstError = this.errorMessage.first();
+    try {
+      await firstError.waitFor({ state: 'visible', timeout: 3000 });
+      return firstError.textContent();
+    } catch {
+      return null;
     }
-    return null;
   }
 
   async clickRegister() {

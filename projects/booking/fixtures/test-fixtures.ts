@@ -1,14 +1,12 @@
 import { test as base } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { SearchResultsPage } from '../pages/SearchResultsPage';
-import { HotelDetailPage } from '../pages/HotelDetailPage';
 import { BookingPage } from '../pages/BookingPage';
 import { ConfirmationPage } from '../pages/ConfirmationPage';
 
 type BookingPages = {
   homePage: HomePage;
   searchResultsPage: SearchResultsPage;
-  hotelDetailPage: HotelDetailPage;
   bookingPage: BookingPage;
   confirmationPage: ConfirmationPage;
 };
@@ -20,9 +18,6 @@ export const test = base.extend<BookingPages>({
   },
   searchResultsPage: async ({ page }, use) => {
     await use(new SearchResultsPage(page));
-  },
-  hotelDetailPage: async ({ page }, use) => {
-    await use(new HotelDetailPage(page));
   },
   bookingPage: async ({ page }, use) => {
     await use(new BookingPage(page));

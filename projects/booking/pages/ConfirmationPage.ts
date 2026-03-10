@@ -1,66 +1,68 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class ConfirmationPage extends BasePage {
-  readonly pageUrl = /confirmation|success|thank/;
-  readonly confirmationMessage: Locator;
-  readonly bookingReference: Locator;
+  readonly pageUrl = /confirmation/;
+  readonly pageTitle: Locator;
+  readonly confirmationId: Locator;
+  readonly statusMessage: Locator;
   readonly bookingDetails: Locator;
-  readonly hotelName: Locator;
-  readonly checkInDate: Locator;
-  readonly checkOutDate: Locator;
-  readonly guestName: Locator;
-  readonly totalPaid: Locator;
-  readonly printButton: Locator;
-  readonly emailConfirmation: Locator;
+  readonly amountPaid: Locator;
+  readonly cardNumber: Locator;
+  readonly expirationDate: Locator;
+  readonly authCode: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.confirmationMessage = page.locator('.confirmation-message, .success-message, h1');
-    this.bookingReference = page.locator('.booking-reference, .confirmation-number');
-    this.bookingDetails = page.locator('.booking-details, .reservation-details');
-    this.hotelName = page.locator('.hotel-name, .property-name');
-    this.checkInDate = page.locator('.check-in-date, [data-field="checkin"]');
-    this.checkOutDate = page.locator('.check-out-date, [data-field="checkout"]');
-    this.guestName = page.locator('.guest-name, .customer-name');
-    this.totalPaid = page.locator('.total-paid, .amount-paid');
-    this.printButton = page.locator('button.print, .btn-print');
-    this.emailConfirmation = page.locator('.email-sent, .confirmation-email');
+    this.pageTitle = page.locator('h1');
+    this.confirmationId = page.locator('tr:has-text("Id") td:nth-child(2)');
+    this.statusMessage = page.locator('tr:has-text("Status") td:nth-child(2)');
+    this.bookingDetails = page.locator('table.table');
+    this.amountPaid = page.locator('tr:has-text("Amount") td:nth-child(2)');
+    this.cardNumber = page.locator('tr:has-text("Card Number") td:nth-child(2)');
+    this.expirationDate = page.locator('tr:has-text("Expiration") td:nth-child(2)');
+    this.authCode = page.locator('tr:has-text("Auth Code") td:nth-child(2)');
   }
 
   async isBookingConfirmed(): Promise<boolean> {
-    const message = await this.confirmationMessage.textContent();
-    return message?.toLowerCase().includes('confirm') || 
-           message?.toLowerCase().includes('success') ||
-           message?.toLowerCase().includes('thank') || false;
+    const title = await this.pageTitle.textContent();
+    return title?.toLowerCase().includes('thank you') || false;
   }
 
-  async getBookingReference(): Promise<string | null> {
-    return this.bookingReference.textContent();
+  async getConfirmationId(): Promise<string | null> {
+    return this.confirmationId.textContent();
   }
 
-  async getHotelName(): Promise<string | null> {
-    return this.hotelName.textContent();
+  async getStatus(): Promise<string | null> {
+    return this.statusMessage.textContent();
   }
 
-  async getTotalPaid(): Promise<number> {
-    const text = await this.totalPaid.textContent();
+  async getAmountPaid(): Promise<number> {
+    const text = await this.amountPaid.textContent();
     return parseFloat(text?.replace(/[^0-9.]/g, '') || '0');
   }
 
-  async printConfirmation() {
-    await this.printButton.click();
+  async getCardNumber(): Promise<string | null> {
+    return this.cardNumber.textContent();
   }
 
-  async verifyBookingDetails(expected: {
-    hotelName?: string;
-    guestName?: string;
-  }) {
-    if (expected.hotelName) {
-      await expect(this.hotelName).toContainText(expected.hotelName);
-    }
-    if (expected.guestName) {
-      await expect(this.guestName).toContainText(expected.guestName);
-    }
+  async getAuthCode(): Promise<string | null> {
+    return this.authCode.textContent();
+  }
+
+  async verifyConfirmationDetails(): Promise<{
+    id: string | null;
+    status: string | null;
+    amount: number;
+    cardNumber: string | null;
+    authCode: string | null;
+  }> {
+    return {
+      id: await this.getConfirmationId(),
+      status: await this.getStatus(),
+      amount: await this.getAmountPaid(),
+      cardNumber: await this.getCardNumber(),
+      authCode: await this.getAuthCode(),
+    };
   }
 }

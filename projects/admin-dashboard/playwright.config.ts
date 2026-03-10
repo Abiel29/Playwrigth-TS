@@ -2,10 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false, // Disable parallel to reduce load on slow external server
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 3 : 1, // More retries for flaky external server
+  workers: 1, // Single worker to avoid overwhelming the demo server
+  timeout: 90000, // 90s per test (server is very slow)
   reporter: [
     ['html', { open: 'never', outputFolder: '../../playwright-report/admin-dashboard' }],
     ['list'],
@@ -15,11 +16,11 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 45000, // 45s for actions (was 15s)
+    navigationTimeout: 60000, // 60s for navigation (was 30s)
   },
   expect: {
-    timeout: 10000,
+    timeout: 30000, // 30s for assertions (was 10s)
   },
   projects: [
     {

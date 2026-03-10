@@ -86,9 +86,22 @@ export class BillPayPage extends BasePage {
   }
 
   async getErrorMessage(): Promise<string | null> {
-    if (await this.errorMessage.isVisible()) {
-      return this.errorMessage.textContent();
+    const firstError = this.errorMessage.first();
+    if (await firstError.isVisible()) {
+      return firstError.textContent();
     }
     return null;
+  }
+
+  async getAllErrorMessages(): Promise<string[]> {
+    const errors = await this.errorMessage.all();
+    const messages: string[] = [];
+    for (const error of errors) {
+      if (await error.isVisible()) {
+        const text = await error.textContent();
+        if (text) messages.push(text.trim());
+      }
+    }
+    return messages;
   }
 }

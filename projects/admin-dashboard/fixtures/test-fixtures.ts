@@ -55,7 +55,9 @@ export const authenticatedTest = base.extend<AuthenticatedPages>({
   authenticatedPage: async ({ page, loginPage }, use) => {
     await loginPage.goto();
     await loginPage.login(TestUsers.admin.username, TestUsers.admin.password);
-    await page.waitForURL(/dashboard/);
+    // Wait longer for slow OrangeHRM demo server
+    await page.waitForURL(/dashboard/, { timeout: 60000 });
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
     await use();
   },
 });

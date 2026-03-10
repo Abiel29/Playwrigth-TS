@@ -1,74 +1,77 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class BookingPage extends BasePage {
-  readonly pageUrl = /booking|checkout/;
-  readonly firstNameInput: Locator;
-  readonly lastNameInput: Locator;
-  readonly emailInput: Locator;
-  readonly phoneInput: Locator;
+  readonly pageUrl = /purchase/;
+  readonly pageTitle: Locator;
+  readonly nameInput: Locator;
   readonly addressInput: Locator;
   readonly cityInput: Locator;
-  readonly countrySelect: Locator;
-  readonly specialRequestsInput: Locator;
-  readonly termsCheckbox: Locator;
-  readonly confirmButton: Locator;
+  readonly stateInput: Locator;
+  readonly zipCodeInput: Locator;
+  readonly cardTypeSelect: Locator;
+  readonly creditCardInput: Locator;
+  readonly creditCardMonth: Locator;
+  readonly creditCardYear: Locator;
+  readonly nameOnCardInput: Locator;
+  readonly rememberMeCheckbox: Locator;
+  readonly purchaseButton: Locator;
   readonly totalPrice: Locator;
-  readonly bookingSummary: Locator;
-  readonly errorMessage: Locator;
+  readonly flightInfo: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.firstNameInput = page.locator('input[name="firstname"], #first_name');
-    this.lastNameInput = page.locator('input[name="lastname"], #last_name');
-    this.emailInput = page.locator('input[name="email"], #email');
-    this.phoneInput = page.locator('input[name="phone"], #phone');
-    this.addressInput = page.locator('input[name="address"], #address');
-    this.cityInput = page.locator('input[name="city"], #city');
-    this.countrySelect = page.locator('select[name="country"], #country');
-    this.specialRequestsInput = page.locator('textarea[name="requests"], #special_requests');
-    this.termsCheckbox = page.locator('input[name="terms"], #terms');
-    this.confirmButton = page.locator('button[type="submit"], .btn-confirm');
-    this.totalPrice = page.locator('.total-price, .booking-total');
-    this.bookingSummary = page.locator('.booking-summary, .order-summary');
-    this.errorMessage = page.locator('.error-message, .alert-danger');
+    this.pageTitle = page.locator('h2');
+    this.nameInput = page.locator('#inputName');
+    this.addressInput = page.locator('#address');
+    this.cityInput = page.locator('#city');
+    this.stateInput = page.locator('#state');
+    this.zipCodeInput = page.locator('#zipCode');
+    this.cardTypeSelect = page.locator('#cardType');
+    this.creditCardInput = page.locator('#creditCardNumber');
+    this.creditCardMonth = page.locator('#creditCardMonth');
+    this.creditCardYear = page.locator('#creditCardYear');
+    this.nameOnCardInput = page.locator('#nameOnCard');
+    this.rememberMeCheckbox = page.locator('#rememberMe');
+    this.purchaseButton = page.locator('input[type="submit"]');
+    this.totalPrice = page.locator('p:has-text("Total Cost")');
+    this.flightInfo = page.locator('.container p');
   }
 
-  async fillGuestDetails(details: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    address?: string;
-    city?: string;
-    country?: string;
+  async fillPassengerDetails(details: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
   }) {
-    await this.firstNameInput.fill(details.firstName);
-    await this.lastNameInput.fill(details.lastName);
-    await this.emailInput.fill(details.email);
-    await this.phoneInput.fill(details.phone);
-    
-    if (details.address) {
-      await this.addressInput.fill(details.address);
-    }
-    if (details.city) {
-      await this.cityInput.fill(details.city);
-    }
-    if (details.country) {
-      await this.countrySelect.selectOption(details.country);
-    }
+    await this.nameInput.fill(details.name);
+    await this.addressInput.fill(details.address);
+    await this.cityInput.fill(details.city);
+    await this.stateInput.fill(details.state);
+    await this.zipCodeInput.fill(details.zipCode);
   }
 
-  async addSpecialRequests(requests: string) {
-    await this.specialRequestsInput.fill(requests);
+  async fillPaymentDetails(details: {
+    cardType: string;
+    cardNumber: string;
+    month: string;
+    year: string;
+    nameOnCard: string;
+  }) {
+    await this.cardTypeSelect.selectOption(details.cardType);
+    await this.creditCardInput.fill(details.cardNumber);
+    await this.creditCardMonth.fill(details.month);
+    await this.creditCardYear.fill(details.year);
+    await this.nameOnCardInput.fill(details.nameOnCard);
   }
 
-  async acceptTerms() {
-    await this.termsCheckbox.check();
+  async checkRememberMe() {
+    await this.rememberMeCheckbox.check();
   }
 
-  async confirmBooking() {
-    await this.confirmButton.click();
+  async clickPurchase() {
+    await this.purchaseButton.click();
   }
 
   async getTotalPrice(): Promise<number> {
@@ -76,21 +79,21 @@ export class BookingPage extends BasePage {
     return parseFloat(text?.replace(/[^0-9.]/g, '') || '0');
   }
 
-  async getErrorMessage(): Promise<string | null> {
-    if (await this.errorMessage.isVisible()) {
-      return this.errorMessage.textContent();
-    }
-    return null;
-  }
-
-  async completeBooking(details: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
+  async completePurchase(passenger: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  }, payment: {
+    cardType: string;
+    cardNumber: string;
+    month: string;
+    year: string;
+    nameOnCard: string;
   }) {
-    await this.fillGuestDetails(details);
-    await this.acceptTerms();
-    await this.confirmBooking();
+    await this.fillPassengerDetails(passenger);
+    await this.fillPaymentDetails(payment);
+    await this.clickPurchase();
   }
 }

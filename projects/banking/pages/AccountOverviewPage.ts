@@ -31,6 +31,8 @@ export class AccountOverviewPage extends BasePage {
   }
 
   async getAccountsCount(): Promise<number> {
+    // Wait for accounts to load - the table might be visible but rows load async
+    await this.accountRows.first().waitFor({ state: 'attached', timeout: 10000 }).catch(() => {});
     return this.accountRows.count();
   }
 

@@ -55,6 +55,8 @@ export class TransferPage extends BasePage {
   }
 
   async getTransferredAmount(): Promise<string | null> {
+    // Wait for the result to be visible before reading
+    await this.transferAmount.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
     return this.transferAmount.textContent();
   }
 

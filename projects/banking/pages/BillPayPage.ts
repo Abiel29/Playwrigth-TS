@@ -31,7 +31,7 @@ export class BillPayPage extends BasePage {
     this.fromAccountSelect = page.locator('select[name="fromAccountId"]');
     this.sendPaymentButton = page.locator('input[value="Send Payment"]');
     this.successMessage = page.locator('#billpayResult h1');
-    this.errorMessage = page.locator('.error');
+    this.errorMessage = page.locator('span.error, .error, td.error');
   }
 
   async fillPayeeInfo(payee: {
@@ -86,8 +86,10 @@ export class BillPayPage extends BasePage {
   }
 
   async getErrorMessage(): Promise<string | null> {
+    // Wait a moment for validation errors to appear after form submission
+    await this.page.waitForTimeout(500);
     const firstError = this.errorMessage.first();
-    if (await firstError.isVisible()) {
+    if (await firstError.isVisible({ timeout: 3000 }).catch(() => false)) {
       return firstError.textContent();
     }
     return null;

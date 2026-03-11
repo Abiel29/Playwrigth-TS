@@ -8,7 +8,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html', { open: 'never', outputFolder: '../../playwright-report/e-commerce' }],
-    ['list'],
+    ['json', { outputFile: '../../test-results/e-commerce/results.json' }],
+    ['junit', { outputFile: '../../test-results/e-commerce/results.xml' }],
+    ['../shared/reporters/summary-reporter.ts'],
   ],
   use: {
     baseURL: 'https://www.saucedemo.com',

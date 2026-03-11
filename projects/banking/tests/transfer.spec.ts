@@ -2,7 +2,7 @@ import { authenticatedTest as test, expect } from '../fixtures/test-fixtures';
 import { TransferAmounts } from '../utils/TestData';
 
 test.describe('Fund Transfer Tests', () => {
-  test.beforeEach(async ({ authenticatedPage, accountOverviewPage }) => {
+  test.beforeEach(async ({ accountOverviewPage }) => {
     await accountOverviewPage.transferFunds();
   });
 

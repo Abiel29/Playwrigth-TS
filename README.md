@@ -67,6 +67,48 @@ npm run report:admin
 | Admin Dashboard | ~33 |
 | **Total** | **~138** |
 
+## Test Reporting
+
+Setiap project dilengkapi dengan multiple reporters untuk kemudahan analisis hasil test:
+
+### Custom Summary Reporter
+Output terminal yang mudah dibaca dengan:
+- Header info (project, jumlah test, workers)
+- Progress real-time dengan emoji status (✅/❌/⏭️/🔄)
+- Summary box dengan pass rate dan durasi
+- Daftar failed tests dengan error message
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║                      📊 TEST SUMMARY                         ║
+╠══════════════════════════════════════════════════════════════╣
+║  ✅ Passed:  5                                                ║
+║  ❌ Failed:  0                                                ║
+║  ⏭️  Skipped: 0                                               ║
+║  🔄 Flaky:   0                                                ║
+╠══════════════════════════════════════════════════════════════╣
+║  📈 Pass Rate: 100.0%                                         ║
+║  ⏱️  Duration: 5.70s                                          ║
+║  🏁 Status: PASSED                                            ║
+╚══════════════════════════════════════════════════════════════╝
+```
+
+### Available Reporters
+| Reporter | Output | Kegunaan |
+|----------|--------|----------|
+| HTML | `playwright-report/<project>/` | Visual interaktif, screenshot, trace |
+| JSON | `test-results/<project>/results.json` | Parsing, integrasi tools |
+| JUnit | `test-results/<project>/results.xml` | CI/CD integration |
+| Summary | Terminal | Quick overview |
+
+### View Reports
+```bash
+npm run report:e-commerce   # Buka HTML report e-commerce
+npm run report:booking      # Buka HTML report booking
+npm run report:banking      # Buka HTML report banking
+npm run report:admin        # Buka HTML report admin
+```
+
 ## Key Features Demonstrated
 
 - Page Object Model with inheritance
@@ -76,7 +118,7 @@ npm run report:admin
 - Visual regression testing
 - API testing
 - CI/CD with parallel execution
-- Comprehensive reporting
+- Custom test reporters
 
 ## CI/CD
 

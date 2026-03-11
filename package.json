@@ -12,10 +12,12 @@
     "test:headed": "npx playwright test --headed",
     "test:ui": "npx playwright test --ui",
     "test:debug": "npx playwright test --debug",
+    "report": "echo '📊 Available reports: npm run report:e-commerce | report:booking | report:banking | report:admin'",
     "report:e-commerce": "npx playwright show-report playwright-report/e-commerce",
     "report:booking": "npx playwright show-report playwright-report/booking",
     "report:banking": "npx playwright show-report playwright-report/banking",
     "report:admin": "npx playwright show-report playwright-report/admin-dashboard",
+    "report:all": "npm run report:e-commerce & npm run report:booking & npm run report:banking & npm run report:admin",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },

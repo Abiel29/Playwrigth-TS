@@ -9,7 +9,9 @@ export default defineConfig({
   timeout: 90000, // 90s per test (server is very slow)
   reporter: [
     ['html', { open: 'never', outputFolder: '../../playwright-report/admin-dashboard' }],
-    ['list'],
+    ['json', { outputFile: '../../test-results/admin-dashboard/results.json' }],
+    ['junit', { outputFile: '../../test-results/admin-dashboard/results.xml' }],
+    ['../shared/reporters/summary-reporter.ts'],
   ],
   use: {
     baseURL: 'https://opensource-demo.orangehrmlive.com',

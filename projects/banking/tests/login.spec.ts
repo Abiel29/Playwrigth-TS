@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/test-fixtures';
-import { TestUsers, ErrorMessages } from '../utils/TestData';
+import { TestUsers } from '../utils/TestData';
 
 test.describe('Login Tests', () => {
   test.beforeEach(async ({ loginPage }) => {

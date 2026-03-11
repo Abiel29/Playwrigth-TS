@@ -2,9 +2,6 @@ import { authenticatedTest as test, expect } from '../fixtures/test-fixtures';
 import { AccountTypes } from '../utils/TestData';
 
 test.describe('Account Overview Tests', () => {
-  test.beforeEach(async ({ authenticatedPage }) => {
-    // Login handled by fixture
-  });
 
   test('should display account overview', async ({ accountOverviewPage }) => {
     await expect(accountOverviewPage.accountsTable).toBeVisible();
@@ -35,7 +32,7 @@ test.describe('Account Overview Tests', () => {
 });
 
 test.describe('Open New Account Tests', () => {
-  test.beforeEach(async ({ authenticatedPage, accountOverviewPage }) => {
+  test.beforeEach(async ({ accountOverviewPage }) => {
     await accountOverviewPage.openNewAccount();
   });
 

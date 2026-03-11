@@ -8,7 +8,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html', { open: 'never', outputFolder: '../../playwright-report/banking' }],
-    ['list'],
+    ['json', { outputFile: '../../test-results/banking/results.json' }],
+    ['junit', { outputFile: '../../test-results/banking/results.xml' }],
+    ['../shared/reporters/summary-reporter.ts'],
   ],
   use: {
     baseURL: 'https://parabank.parasoft.com',

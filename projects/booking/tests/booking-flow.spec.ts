@@ -145,3 +145,98 @@ test.describe('Confirmation Page Tests', () => {
     expect(details.amount).toBeGreaterThan(0);
   });
 });
+
+
+test.describe('Booking Negative Tests', () => {
+  test.beforeEach(async ({ homePage, searchResultsPage }) => {
+    await homePage.goto();
+    await homePage.searchFlight(
+      FlightData.departures.paris,
+      FlightData.destinations.london
+    );
+    await searchResultsPage.waitForResults();
+    await searchResultsPage.selectFirstFlight();
+  });
+
+  test('should not proceed with empty passenger name', async ({ bookingPage }) => {
+    await bookingPage.fillPassengerDetails({
+      name: '',
+      address: TestUsers.passenger.address,
+      city: TestUsers.passenger.city,
+      state: TestUsers.passenger.state,
+      zipCode: TestUsers.passenger.zipCode,
+    });
+    await bookingPage.fillPaymentDetails(TestUsers.payment);
+    await bookingPage.clickPurchase();
+
+    // Form should still be visible (not navigated to confirmation)
+    await expect(bookingPage.purchaseButton).toBeVisible();
+  });
+
+  test('should not proceed with empty address', async ({ bookingPage }) => {
+    await bookingPage.fillPassengerDetails({
+      name: TestUsers.passenger.name,
+      address: '',
+      city: TestUsers.passenger.city,
+      state: TestUsers.passenger.state,
+      zipCode: TestUsers.passenger.zipCode,
+    });
+    await bookingPage.fillPaymentDetails(TestUsers.payment);
+    await bookingPage.clickPurchase();
+
+    await expect(bookingPage.purchaseButton).toBeVisible();
+  });
+
+  test('should not proceed with empty credit card number', async ({ bookingPage }) => {
+    await bookingPage.fillPassengerDetails(TestUsers.passenger);
+    await bookingPage.fillPaymentDetails({
+      ...TestUsers.payment,
+      cardNumber: '',
+    });
+    await bookingPage.clickPurchase();
+
+    await expect(bookingPage.purchaseButton).toBeVisible();
+  });
+
+  test('should not proceed with invalid credit card number', async ({ bookingPage }) => {
+    await bookingPage.fillPassengerDetails(TestUsers.passenger);
+    await bookingPage.fillPaymentDetails({
+      ...TestUsers.payment,
+      cardNumber: '1234567890',
+    });
+    await bookingPage.clickPurchase();
+
+    await expect(bookingPage.purchaseButton).toBeVisible();
+  });
+
+  test('should not proceed with empty name on card', async ({ bookingPage }) => {
+    await bookingPage.fillPassengerDetails(TestUsers.passenger);
+    await bookingPage.fillPaymentDetails({
+      ...TestUsers.payment,
+      nameOnCard: '',
+    });
+    await bookingPage.clickPurchase();
+
+    await expect(bookingPage.purchaseButton).toBeVisible();
+  });
+
+  test('should not proceed with all empty fields', async ({ bookingPage }) => {
+    await bookingPage.fillPassengerDetails({
+      name: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+    });
+    await bookingPage.fillPaymentDetails({
+      cardType: 'visa',
+      cardNumber: '',
+      month: '',
+      year: '',
+      nameOnCard: '',
+    });
+    await bookingPage.clickPurchase();
+
+    await expect(bookingPage.purchaseButton).toBeVisible();
+  });
+});

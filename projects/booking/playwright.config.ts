@@ -8,7 +8,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html', { open: 'never', outputFolder: '../../playwright-report/booking' }],
-    ['list'],
+    ['json', { outputFile: '../../test-results/booking/results.json' }],
+    ['junit', { outputFile: '../../test-results/booking/results.xml' }],
+    ['../shared/reporters/summary-reporter.ts'],
   ],
   use: {
     baseURL: 'https://www.blazedemo.com',
